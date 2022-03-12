@@ -1,0 +1,50 @@
+SELECT *  FROM dbo.master;
+SELECT * 
+FROM dbo.master;
+
+ALTER TABLE suicidedeaths
+DROP COLUMN F7,F8;
+
+--Finding the number of suicide deaths in each country per year;
+SELECT country, year, COUNT (suicides_no) AS suicide_count
+FROM master
+GROUP BY country,year
+ORDER BY country;
+
+
+--Finding the number of suicide deaths in each country ;
+SELECT country, COUNT (suicides_no) AS suicide_count
+FROM dbo.master 
+GROUP BY country
+ORDER BY country;
+
+--Finding the number of suicide deaths each year ;
+SELECT year, COUNT (suicides_no)
+FROM dbo.master
+GROUP BY year
+ORDER BY year;
+
+--Finding the year with maximum suicide count
+SELECT year, MAX (suicides_no) AS maximum_suicides
+FROM dbo.master
+GROUP BY year
+ORDER BY maximum_suicides;
+
+--Finding suicide count according to gender
+
+SELECT country, sex, COUNT (suicides_no) As gender_suicide_count
+FROM dbo.master
+GROUP BY country,sex
+ORDER BY country;
+
+--Finding suicide count based on age group
+SELECT country,age , COUNT (suicides_no) AS age_group_suicides
+FROM dbo.master
+GROUP BY country , age
+ORDER BY country;
+
+--Gender based suicide count across the globe
+SELECT sex, COUNT (suicides_no) As gender_suicide_count
+FROM dbo.master
+GROUP BY sex
+ORDER BY sex;
