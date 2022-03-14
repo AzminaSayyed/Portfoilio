@@ -12,7 +12,7 @@ DROP COLUMN F7,F8;
 
 --Finding the number of suicide deaths in each country per year; 
 
-SELECT country, year, COUNT (suicides_no) AS suicide_count 
+SELECT country, year, SUM(cast (suicides_no as int)) AS suicide_count 
 
 FROM master 
 
@@ -26,7 +26,7 @@ ORDER BY country;
 
 --Finding the number of suicide deaths in each country ; 
 
-SELECT country, COUNT (suicides_no) AS suicide_count 
+SELECT country, SUM(cast (suicides_no as int)) AS suicide_count 
 
 FROM dbo.master  
 
@@ -38,7 +38,7 @@ ORDER BY country;
 
 --Finding the number of suicide deaths each year ; 
 
-SELECT year, COUNT (suicides_no) 
+SELECT year, SUM(cast (suicides_no as int)) 
 
 FROM dbo.master 
 
@@ -50,7 +50,7 @@ ORDER BY year;
 
 --Finding the year with maximum suicide count 
 
-SELECT year, MAX (suicides_no) AS maximum_suicides 
+SELECT year, MAX (SUM(cast (suicides_no as int))) AS maximum_suicides 
 
 FROM dbo.master 
 
@@ -64,7 +64,7 @@ ORDER BY maximum_suicides;
 
   
 
-SELECT country, sex, COUNT (suicides_no) As gender_suicide_count 
+SELECT country, sex, SUM(cast (suicides_no as int)) As gender_suicide_count 
 
 FROM dbo.master 
 
@@ -73,17 +73,16 @@ GROUP BY country,sex
 ORDER BY country; 
 
   
+--Suicide count by agegroups
+SELECT age,SUM(cast (suicides_no as int)) AS Age_wise_count
+FROM dbo.master
+GROUP BY age;
 
---Finding suicide count based on age group 
+--Suicide count of a particular agegroup
 
-SELECT country,age , COUNT (suicides_no) AS age_group_suicides 
-
-FROM dbo.master 
-
-GROUP BY country , age 
-
-ORDER BY country; 
-
+SELECT SUM(cast (suicides_no as int)) AS 25to34agegroup
+FROM dbo.master
+WHERE age = '25-34 years';
   
 
 --Gender based suicide count across the globe 
@@ -95,6 +94,7 @@ FROM dbo.master
 GROUP BY sex 
 
 ORDER BY sex; 
+
 
 --USING CTE TO FIND OUT THE SUICIDE PERCENTAGE 
 
