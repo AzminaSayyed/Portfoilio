@@ -1,0 +1,91 @@
+SELECT *
+FROM dbo.Managersalarysurvey
+
+--Standardize date format
+SELECT timestamp
+FROM dbo.Managersalarysurvey
+
+SELECT timestamp,
+CONVERT(date,timestamp)
+FROM dbo.Managersalarysurvey
+
+ALTER TABLE dbo.Managersalarysurvey
+ADD date_created DATE
+
+ALTER TABLE dbo.Managersalarysurvey
+ADD time_created TIME
+
+UPDATE dbo.Managersalarysurvey
+SET time_created = CONVERT(TIME,timestamp)
+
+
+--Checking for different records in the country column
+SELECT 
+DISTINCT country 
+FROM dbo.Managersalarysurvey
+
+SELECT country,
+COUNT( country)
+FROM dbo.Managersalarysurvey
+GROUP BY country
+ORDER BY country DESC;
+
+UPDATE dbo.Managersalarysurvey
+SET country = 
+CASE WHEN country = 'United Kingdomk' THEN 'UK'
+WHEN country = 'United Kingdom.' THEN 'UK'
+WHEN country =  'United Kingdom' THEN 'UK'
+WHEN country = 'United Kindom' THEN 'UK'
+WHEN country = 'U.K.' THEN 'UK'
+WHEN country = 'U.K'THEN 'UK'
+WHEN country = 'U.A' THEN 'USA'
+ELSE country
+END
+
+UPDATE dbo.Managersalarysurvey
+SET country = 
+CASE WHEN country = 'Unites Kingdom' THEN 'UK'
+WHEN country = 'U.SA' THEN 'USA'
+WHEN country =  'THE US' THEN 'USA'
+WHEN country = 'THE USA' THEN 'USA'
+WHEN country = 'U. S.' THEN 'USA'
+WHEN country = 'U. S'THEN 'USA'
+WHEN country = 'U.A.' THEN 'USA'
+ELSE country
+END
+
+--Checking if the string length for the country column is more than 10 inorder to fix typos in the column
+SELECT country
+FROM dbo.managersalarysurvey
+WHERE LEN(country) >15
+
+--Checking for null values in a table
+SELECT COUNT(null_records) AS count_of_nulls
+FROM 
+(SELECT [Job Title],
+COALESCE(F20,F21,F22,F23,F24,F25,'NULL') AS null_records
+FROM dbo.managersalarysurvey)AS count
+
+--Checking for duplicates
+
+WITH RowNumCTE AS (SELECT *,
+ROW_NUMBER()OVER 
+(PARTITION BY [Annual salary],
+			[Job title],
+			[Timestamp],
+			[Industry]
+			ORDER BY [Job title]) row_num
+FROM  dbo.Managersalarysurvey)
+SELECT*
+FROM RowNumCTE
+
+--Deleting duplicates
+
+WITH RowNumCTE AS (SELECT *,
+ROW_NUMBER()OVER 
+(PARTITION BY [Annual salary],
+			[Job title],
+			[Timestamp],
+			[Industry]
+			ORDER BY [Job title]) row_num
+FROM  dbo.Managersalarysurvey)
