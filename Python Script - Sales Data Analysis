@@ -1,0 +1,127 @@
+import pandas as pd
+import os
+
+# merging 12 months of data into a single file
+#df = pd.read_csv(r"C:\Users\bhoja\Documents\Azmina\Portfolio\DATA\Python\Pandas-Data-Science-Tasks-master\SalesAnalysis\Sales_Data\Sales_April_2019.csv")
+
+# 1. defines path to csv files
+path =r"C:\Users\bhoja\Documents\Azmina\Portfolio\DATA\Python\Pandas-Data-Science-Tasks-master\SalesAnalysis\Sales_Data\\"
+
+# 2. creates list with files to merge based on name convention
+file_list = [path + f for f in os.listdir(path) if f.endswith('.csv')]
+
+# 3. creates empty list to include the content of each file converted to pandas DF
+csv_list = []
+
+# 4. reads each (sorted) file in file_list, converts it to pandas DF and appends it to the csv_list
+for file in sorted(file_list):
+    csv_list.append(pd.read_csv(file).assign(File_Name = os.path.basename(file)))
+    
+# 5. merges single pandas DFs into a single DF, index is refreshed 
+csv_merged = pd.concat(csv_list, ignore_index=True)
+
+# 6. Single DF is saved to the path in CSV format, without index column
+csv_merged.to_csv(path + 'sales_records_full.csv', index=False)
+
+#printing the merged data
+
+all_data = pd.read_csv(r"C:\Users\bhoja\Documents\Azmina\Portfolio\DATA\Python\Pandas-Data-Science-Tasks-master\SalesAnalysis\Sales_Data\sales_records_full.csv")
+all_data.head()
+
+# cleaning up data
+DROP Rows of NAN
+
+nan_df = all_data[all_data.isna().any(axis=1)]
+nan_df.head()
+​
+all_data = all_data.dropna(how='any')
+all_data.head()
+
+#find O and delete it
+all_data = all_data[all_data['Order Date'].str[0] != 'O']
+
+#Convert columns to the right data type
+all_data['Quantity Ordered'] = all_data['Quantity Ordered'].astype('int') 
+all_data['Price Each'] = all_data ['Price Each'].astype('float')
+#all_data['Order Date'] = pd.to_datetime(all_data['Order Date'],format ='%m~%d~%y')
+
+all_data['Quantity Ordered'] = pd.to_numeric(all_data['Quantity Ordered']) # Make int
+all_data ['Price Each'] = pd.to_numeric(all_data['Price Each']) # make Float
+
+# checking the column Data types 
+all_data.info()
+
+from datetime import datetime
+all_data['Order Date'] = pd.to_datetime(all_data['Order Date'])
+all_data.head()
+
+#Augment Data into columns
+
+#ADD MONTH COLUMN
+all_data['Month'] =pd.DatetimeIndex(all_data['Order Date']).month
+all_data['Month'] = all_data['Month'].astype('int32')
+all_data.head()
+
+# TASK 3 - ADD A Sales Column
+
+all_data['Sales'] = all_data['Quantity Ordered']*all_data['Price Each']
+all_data.head()
+
+# Lookind at the data stats
+all_data.describe() 
+#sorting values 
+all_data.sort_values(['Sales'], ascending = False)
+
+QUESTION 1 # What was the best month for sales?How much money was earned?
+results = all_data.groupby('Month').sum()
+results.head()
+
+#Plotting results data in the form of a bar chart
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+months = range(1,13)
+plt.bar(months,results['Sales'])
+
+plt.xticks(months)
+plt.ylabel('Sales in USD $ Million')
+plt.xlabel('Month numbers')
+plt.show()
+
+# Create a new column 'City' extracted from the address 
+def get_city(address):
+    return address.split(',')[1]
+
+def get_state(address):
+    return address.split(',')[2].split(' ')[1]
+
+all_data['City']=all_data['Purchase Address'].apply(lambda x : get_city(x) + ' ' + get_state(x))
+all_data.head()
+
+results = all_data.groupby('City').sum()
+results
+
+
+import matplotlib.pyplot as plt
+cities = [city for city, df in all_data.groupby('City')]
+plt.bar(cities,results['Sales'])
+
+plt.xticks(cities, rotation = 'vertical',size=8)
+plt.ylabel('Sales in USD $ Million')
+plt.xlabel('Cities')
+plt.show()
+
+# QUESTION 3 - What time should we display advertisements to maximize likelihood of customer's buying products?
+all_data['Hour'] = all_data['Order Date'].dt.hour
+all_data['Minute'] = all_data['Order Date'].dt.minute
+all_data.head()
+
+import matplotlib.pyplot as plt
+Hours = [hour for hour, df in all_data.groupby('Hour')]
+plt.plot(Hours,all_data.groupby(['Hour']).count())
+plt.xticks(Hours)
+plt.grid()
+plt.ylabel('Count of orders')
+plt.xlabel('Hour of the day')
+plt.show
+# 11am and 7pm are the times we received the most orders.
+
